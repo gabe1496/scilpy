@@ -582,7 +582,7 @@ def shore_index_matrix(radial_order):
     """
     index_matrix = []
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             for m in range(-1 * (n + 2 - 2 * j), (n + 3 - 2 * j)):
                 index_matrix.append([j, n + 2 - 2 * j, m])
 
@@ -936,6 +936,8 @@ def shore_laplace_reg_matrix(radial_order, mu):
                 ji = ind_mat[i, 0]
                 jk = ind_mat[k, 0]
                 l = ind_mat[i, 1]
+                print(1 / 2.0 + ji + l)
+                print(ji)
                 if ji == (jk + 2):
                     LR[i, k] = LR[k, i] = 2 ** (2 - l) * np.pi ** 2 * mu *\
                         gamma(5 / 2.0 + jk + l) / gamma(jk)
@@ -944,6 +946,8 @@ def shore_laplace_reg_matrix(radial_order, mu):
                         (-3 + 4 * ji + 2 * l) * gamma(3 / 2.0 + jk + l) /\
                         gamma(jk)
                 elif ji == jk:
+                    print(1 / 2.0 + ji + l)
+                    print(ji)
                     LR[i, k] = 2 ** (-l) * np.pi ** 2 * mu *\
                         (3 + 24 * ji ** 2 + 4 * (-2 + l) *
                          l + 12 * ji * (-1 + 2 * l)) *\
