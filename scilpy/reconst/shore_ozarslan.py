@@ -126,10 +126,9 @@ class ShoreOzarslanModel(Cache):
             msg = "Cannot use both Laplacian and Separated regularization.\
                    Please choose one."
             raise ValueError(msg)
-
-        if laplacian_weighting == 'GCV' or \
-                np.isscalar(laplacian_weighting):
-            if np.isscalar(laplacian_weighting) and \
+        
+        if np.isscalar(laplacian_weighting):
+            if not isinstance(laplacian_weighting, str) and \
                     laplacian_weighting < 0.:
                 msg = "Laplacian Regularization weighting must be positive."
                 raise ValueError(msg)
@@ -137,9 +136,8 @@ class ShoreOzarslanModel(Cache):
                 self.laplacian_weighting = laplacian_weighting
             self.laplacian_matrix = shore_laplace_reg_matrix(radial_order, 1)
 
-        if separated_weighting == 'GCV' or \
-                np.isscalar(separated_weighting):
-            if np.isscalar(separated_weighting) and \
+        if np.isscalar(separated_weighting):
+            if not isinstance(separated_weighting, str) and \
                     separated_weighting < 0:
                 msg = "Separated Regularization weighting must be positive."
             else:
@@ -585,7 +583,6 @@ def shore_index_matrix(radial_order):
         for j in range(1, int(2 + n / 2)):
             for m in range(-1 * (n + 2 - 2 * j), (n + 3 - 2 * j)):
                 index_matrix.append([j, n + 2 - 2 * j, m])
-
     return np.array(index_matrix)
 
 
@@ -595,7 +592,7 @@ def rtpp_vector(radial_order, ind_mat):
     rtpp_vec = np.zeros((ind_mat.shape[0]))
     count = 0
     for n in range(0, radial_order + 1, 2):
-            for j in range(1, 2 + n / 2):
+            for j in range(1, int(2 + n / 2)):
                 l = n + 2 - 2 * j
                 const = (-1/2.0) ** (l/2) / np.sqrt(np.pi)
                 matsum = 0
@@ -618,7 +615,7 @@ def rtap_vector(radial_order, ind_mat):
     count = 0
 
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             kappa = ((-1) ** (j - 1) * 2 ** (-(l + 3) / 2.0)) / np.pi
             matsum = 0
@@ -685,7 +682,7 @@ def shore_Q_mu_independent(radial_order, q):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             const = np.sqrt(4 * np.pi) * (-1) ** (-l / 2) * \
                 (2 * np.pi ** 2 * qval ** 2) ** (l / 2)
@@ -709,7 +706,7 @@ def shore_Q_mu_dependent(radial_order, mu, qval):
     counter = 0
 
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             const = mu ** l * np.exp(-2 * np.pi ** 2 * mu ** 2 * qval ** 2) *\
                 genlaguerre(j - 1, l + 0.5)(4 * np.pi ** 2 * mu ** 2 *
@@ -737,7 +734,7 @@ def shore_phi_matrix(radial_order, mu, q):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             const = (-1) ** (l / 2) * np.sqrt(4.0 * np.pi) *\
                 (2 * np.pi ** 2 * mu ** 2 * qval ** 2) ** (l / 2) *\
@@ -765,7 +762,7 @@ def shore_K_mu_independent(radial_order, rgrad):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             const = (-1) ** (j - 1) *\
                 (np.sqrt(2) * np.pi) ** (-1) *\
@@ -791,7 +788,7 @@ def shore_K_mu_dependent(radial_order, mu, rgrad):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             const = (mu ** 3) ** (-1) * mu ** (-l) *\
                 np.exp(-r ** 2 / (2 * mu ** 2)) *\
@@ -818,7 +815,7 @@ def shore_psi_matrix(radial_order, mu, rgrad):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             const = (-1) ** (j - 1) * \
                     (np.sqrt(2) * np.pi * mu ** 3) ** (-1) *\
@@ -877,7 +874,7 @@ def shore_odf_matrix(radial_order, mu, s, vertices):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             kappa = ((-1) ** (j - 1) * 2 ** (-(l + 3) / 2.0) * mu ** s) / np.pi
             matsum = 0
@@ -935,9 +932,7 @@ def shore_laplace_reg_matrix(radial_order, mu):
                ind_mat[i, 2] == ind_mat[k, 2]:
                 ji = ind_mat[i, 0]
                 jk = ind_mat[k, 0]
-                l = ind_mat[i, 1]
-                print(1 / 2.0 + ji + l)
-                print(ji)
+                l = ind_mat[i, 1].astype(float)
                 if ji == (jk + 2):
                     LR[i, k] = LR[k, i] = 2 ** (2 - l) * np.pi ** 2 * mu *\
                         gamma(5 / 2.0 + jk + l) / gamma(jk)
@@ -946,8 +941,6 @@ def shore_laplace_reg_matrix(radial_order, mu):
                         (-3 + 4 * ji + 2 * l) * gamma(3 / 2.0 + jk + l) /\
                         gamma(jk)
                 elif ji == jk:
-                    print(1 / 2.0 + ji + l)
-                    print(ji)
                     LR[i, k] = 2 ** (-l) * np.pi ** 2 * mu *\
                         (3 + 24 * ji ** 2 + 4 * (-2 + l) *
                          l + 12 * ji * (-1 + 2 * l)) *\
@@ -971,7 +964,7 @@ def shore_separated_reg_matrices(radial_order):
 
     counter = 0
     for n in range(0, radial_order + 1, 2):
-        for j in range(1, 2 + n / 2):
+        for j in range(1, int(2 + n / 2)):
             l = n + 2 - 2 * j
             for m in range(-l, l+1):
                 N_mat[counter, counter] = (n * (n + 1)) ** 2

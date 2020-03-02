@@ -153,8 +153,7 @@ def main():
         shore_model = ShoreOzarslanModel(gtab, radial_order=args.radial_order,
                                          laplacian_regularization=True,
                                          laplacian_weighting=args.regul_weighting)
-        
-    
+
     smfit = shore_model.fit(data, mask)
     odf = smfit.odf(sphere, radial_moment=args.radial_moment)    
     odf_sh = sf_to_sh(odf, sphere, sh_order=8, basis_type=args.basis, smooth=0.0)    
