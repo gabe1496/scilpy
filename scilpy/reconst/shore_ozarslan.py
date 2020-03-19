@@ -126,7 +126,7 @@ class ShoreOzarslanModel(Cache):
             msg = "Cannot use both Laplacian and Separated regularization.\
                    Please choose one."
             raise ValueError(msg)
-        
+
         if np.isscalar(laplacian_weighting):
             if not isinstance(laplacian_weighting, str) and \
                     laplacian_weighting < 0.:
@@ -167,7 +167,7 @@ class ShoreOzarslanModel(Cache):
         q = gtab.bvecs * qvals[:, None]
         self.Q_mu_independent = shore_Q_mu_independent(self.radial_order, q)
 
-        self.number_of_coefficients = number_of_coef(radial_order) 
+        self.number_of_coefficients = number_of_coef(radial_order)
         self.B_mat = B_matrix(radial_order)
         self.rtpp_vec = rtpp_vector(radial_order, ind_mat)
         self.rtap_vec = rtap_vector(radial_order, ind_mat)
@@ -199,8 +199,8 @@ class ShoreOzarslanModel(Cache):
         if not self.positive_constraint and not self.constraint_e0 and not\
             self.laplacian_regularization and not\
                 self.separated_regularization:
-                coef = np.dot(np.dot(np.linalg.pinv((np.dot(M.T,
-                                                            M))), M.T), data)
+            coef = np.dot(np.dot(np.linalg.pinv(
+                                     (np.dot(M.T, M))), M.T), data)
 
         if self.laplacian_regularization:
             laplacian_matrix = self.laplacian_matrix * mu
@@ -218,13 +218,13 @@ class ShoreOzarslanModel(Cache):
                 zeros = np.zeros(Mreg.shape[0])
                 coef = zeros
 
-                if (data == 0).all() :
+                if (data == 0).all():
                     coef = zeros
-                else :
+                else:
                     try:
                         MregInv = np.linalg.pinv(Mreg)
                         coef = np.dot(np.dot(MregInv, M.T), data)
-                    except np.linalg.linalg.LinAlgError as err: 
+                    except np.linalg.linalg.LinAlgError as err:
                         if 'SVD did not converge' in err.message:
                             warnings.warn('SVD did not converge')
                             coef = zeros
@@ -250,13 +250,13 @@ class ShoreOzarslanModel(Cache):
                 zeros = np.zeros(Mreg.shape[0])
                 coef = zeros
 
-                if (data == 0).all() :
+                if (data == 0).all():
                     coef = zeros
-                else :
+                else:
                     try:
                         MregInv = np.linalg.pinv(Mreg)
                         coef = np.dot(np.dot(MregInv, M.T), data)
-                    except np.linalg.linalg.LinAlgError as err: 
+                    except np.linalg.linalg.LinAlgError as err:
                         if 'SVD did not converge' in err.message:
                             warnings.warn('SVD did not converge')
                             coef = zeros
@@ -299,7 +299,7 @@ class ShoreOzarslanModel(Cache):
 
         if not(self.constraint_e0):
             coef = coef / sum(coef * self.B_mat)
-        
+
         # Apply the mask to the coefficients
         if mask is not None:
             mask = np.asarray(mask, dtype=bool)
@@ -359,15 +359,15 @@ class ShoreOzarslanFit():
                     P(r\cdot \textbf{u}_r)dr.
                 \end{equation}
         """
-        I = self.model.cache_get('ODF_matrix', key=(sphere, radial_moment))
+        M = self.model.cache_get('ODF_matrix', key=(sphere, radial_moment))
 
-        if I is None:
-            I = shore_odf_matrix(self.radial_order, 1,
+        if M is None:
+            M = shore_odf_matrix(self.radial_order, 1,
                                  radial_moment, sphere.vertices)
-            self.model.cache_set('ODF_matrix', (sphere, radial_moment), I)
+            self.model.cache_set('ODF_matrix', (sphere, radial_moment), M)
 
-        odf = self.mu ** (radial_moment) * np.dot(I, self._shore_coef)
-        #return np.clip(odf, 0, odf.max())
+        odf = self.mu ** (radial_moment) * np.dot(M, self._shore_coef)
+        # return np.clip(odf, 0, odf.max())
         return odf
 
     def fitted_signal(self, gtab=None):
@@ -592,18 +592,18 @@ def rtpp_vector(radial_order, ind_mat):
     rtpp_vec = np.zeros((ind_mat.shape[0]))
     count = 0
     for n in range(0, radial_order + 1, 2):
-            for j in range(1, int(2 + n / 2)):
-                l = n + 2 - 2 * j
-                const = (-1/2.0) ** (l/2) / np.sqrt(np.pi)
-                matsum = 0
-                for k in range(0, j):
-                    matsum += (-1) ** k * \
-                        binomialfloat(j + l - 0.5, j - k - 1) *\
-                        gamma(l / 2 + k + 1 / 2.0) /\
-                        (factorial(k) * 0.5 ** (l / 2 + 1 / 2.0 + k))
-                for m in range(-l, l + 1):
-                    rtpp_vec[count] = const * matsum
-                    count += 1
+        for j in range(1, int(2 + n / 2)):
+            l = n + 2 - 2 * j
+            const = (-1/2.0) ** (l/2) / np.sqrt(np.pi)
+            matsum = 0
+            for k in range(0, j):
+                matsum += (-1) ** k * \
+                    binomialfloat(j + l - 0.5, j - k - 1) *\
+                    gamma(l / 2 + k + 1 / 2.0) /\
+                    (factorial(k) * 0.5 ** (l / 2 + 1 / 2.0 + k))
+            for m in range(-l, l + 1):
+                rtpp_vec[count] = const * matsum
+                count += 1
     return rtpp_vec
 
 
@@ -996,6 +996,7 @@ def gen_rgrid(rmax, Nstep=10):
                 rgrad.append([xx, yy, zz])
     return np.array(rgrad)
 
+
 def number_of_coef(radial_order):
     F = radial_order / 2
     return (F + 1) * (F + 2) * (4 * F + 3) / 6
@@ -1004,10 +1005,10 @@ def number_of_coef(radial_order):
 def generalized_crossvalidation(data, M, LR):
     """Generalized Cross Validation Function [3]
     """
-    #lrange = np.hstack([10 * np.linspace(0, 0.1, 20)[1:] ** 2,
-                        #np.linspace(0.2, 1, 9),
-                        #np.linspace(2, 10, 9)])[1:]
-    lrange = np.linspace(0,1,40)[1:]
+    # lrange = np.hstack([10 * np.linspace(0, 0.1, 20)[1:] ** 2,
+                        # np.linspace(0.2, 1, 9),
+                        # np.linspace(2, 10, 9)])[1:]
+    lrange = np.linspace(0, 1, 40)[1:]
     samples = lrange.shape[0]
     MMt = np.dot(M.T, M)
     K = len(data)
