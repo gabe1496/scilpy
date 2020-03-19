@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Compute a length-weighted Track Orientation Density Image (TODI).
+This script can afterwards output a length-weighted Track Density Image
+(TDI) or a length-weighted TODI, based on streamlines' segments.\n\n
+"""
 
 import argparse
 import logging
@@ -14,12 +19,6 @@ from scilpy.io.utils import (add_overwrite_arg, add_reference_arg,
 from scilpy.tractanalysis.todi import TrackOrientationDensityImaging
 
 
-DESCRIPTION = """
-    Compute a length-weighted Track Orientation Density Image (TODI).
-    This script can afterwards output a length-weighted Track Density Image
-    (TDI) or a length-weighted TODI, based on streamlines' segments.\n\n
-    """
-
 EPILOG = """
     References:
         [1] Dhollander T, Emsell L, Van Hecke W, Maes F, Sunaert S, Suetens P.
@@ -30,7 +29,7 @@ EPILOG = """
 
 
 def _build_arg_parser():
-    p = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG,
+    p = argparse.ArgumentParser(description=__doc__, epilog=EPILOG,
                                 formatter_class=argparse.RawTextHelpFormatter)
 
     p.add_argument('tract_filename',
@@ -95,7 +94,7 @@ def main():
     assert_outputs_exist(parser, args, output_file_list)
 
     sft = load_tractogram_with_reference(parser, args, args.tract_filename)
-    affine, data_shape, _, _ = sft.space_attribute
+    affine, data_shape, _, _ = sft.space_attributes
     sft.to_vox()
 
     logging.info('Computing length-weighted TODI ...')
